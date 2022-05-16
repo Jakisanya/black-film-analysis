@@ -1,7 +1,7 @@
-BLACK-FILM-SUCCESS
+What makes a Black film successful? 
 ==============================
 
-Analysis of Black Film Success
+The exploration and analysis of Black film success. 
 
 Project Organization
 ------------
