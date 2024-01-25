@@ -65,7 +65,7 @@ def retrieve_actor_and_movie_data_from_omdb():
     utils.save_data_as_json("omdb_movie_data_from_ids_from_27000_to_29126.json", omdb_movie_data_from_ids_list)
     """
 
-    actor_data_list = utils.load_json_data("actor_data_list_all_2225.json")
+    actor_data_list = utils.load_json_data("data_files/actor_data_list_all_2225.json")
     actor_data = pd.DataFrame(actor_data_list)
 
     # Query OMBb database by title
@@ -87,10 +87,12 @@ def compare_retrieved_omdb_movie_data_and_return_additional_titles():
     """Compare the resulting lists from retrieval (by ID and title) and create a dataset
        of additional movie titles."""
 
-    omdb_movie_data_list_1_ids = pd.DataFrame(utils.load_json_data("omdb_movie_data_from_valid_29120_ids.json"))
+    omdb_movie_data_list_1_ids = pd.DataFrame(utils.load_json_data(
+        "data_files/omdb_movie_data_from_valid_29120_ids.json"))
     title_list_1 = omdb_movie_data_list_1_ids[["Title"]]
 
-    omdb_movie_data_list_2_titles = pd.DataFrame(utils.load_json_data("omdb_movie_data_from_valid_35403_titles.json"))
+    omdb_movie_data_list_2_titles = pd.DataFrame(utils.load_json_data(
+        "data_files/omdb_movie_data_from_valid_35403_titles.json"))
     title_list_2 = omdb_movie_data_list_2_titles[["Title"]]
 
     print(f'There are {len(title_list_1)} movies in the dataset made using imdb ids and '
@@ -110,4 +112,4 @@ def compare_retrieved_omdb_movie_data_and_return_additional_titles():
     print(f'There should be {len(additional_titles)} in additional_titles_list. There are '
           f'{len(additional_titles_list["Titles"])}.')
 
-    utils.save_data_as_json("additional_titles_list.json", additional_titles_list)
+    utils.save_data_as_json("data_files/additional_titles_list.json", additional_titles_list)

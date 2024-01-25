@@ -15,15 +15,6 @@ import post_db_data_cleaning
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    # data_collection.collect_data()
+    data_collection.collect_data()
     # pre_db_data_cleaning.run_pre_db_data_clean()
     # psql_database_eng.write_dataframes_to_sql_database()
-
-    """
-    tmdb_movie_data_list = pd.DataFrame(utils.load_json_data("original_tmdb_movie_data_list_all_2225.json"))
-    print(f'length of tmdb movie data list = {len(tmdb_movie_data_list)}')
-
-    actor_data_list = utils.load_json_data("actor_data_list_all_2225.json")
-    actor_data = pd.DataFrame(actor_data_list)
-    print(f'number of movie credits in actor_data["Movie_Credits"]: {len(actor_data["Movie_Credits"].sum())}')
-    """

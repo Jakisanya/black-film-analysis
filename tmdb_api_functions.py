@@ -215,7 +215,7 @@ def summarise_original_tmdb_data_retrieval():
 
 def retrieve_additional_actor_and_movie_data_from_tmdb():
     """Retrieve additional actor and movie information from TMDb using the additional tmdb movie data."""
-    additional_titles_list = utils.load_json_data("additional_titles_list.json")
+    additional_titles_list = utils.load_json_data("data_files/additional_titles_list.json")
 
     count = 0
     for title in additional_titles_list["Titles"]:
@@ -233,18 +233,18 @@ def retrieve_additional_actor_and_movie_data_from_tmdb():
 
 
 def save_additional_retrieved_tmdb_data():
-    utils.save_data_as_json("additional_tmdb_movie_data_list.json", additional_tmdb_movie_data_list)
+    utils.save_data_as_json("data_files/additional_tmdb_movie_data_list.json", additional_tmdb_movie_data_list)
 
 
 def concatenate_retrieved_tmdb_data():
     """Concat the original and additional tmdb movie data datasets."""
-    original_dataset = utils.load_json_data("original_tmdb_movie_data_list_all_2225.json")
-    additional_dataset = utils.load_json_data("additional_tmdb_movie_data_list.json")
+    original_dataset = utils.load_json_data("data_files/original_tmdb_movie_data_list_all_2225.json")
+    additional_dataset = utils.load_json_data("data_files/additional_tmdb_movie_data_list.json")
     concatenated_tmdb_movie_data_list = original_dataset + additional_dataset
     print(f'Original dataset size: {len(original_dataset)}'
           f'\nAdditional dataset size: {len(additional_dataset)}'
           f'\nConcatenated dataset size: {len(concatenated_tmdb_movie_data_list)}')
-    utils.save_data_as_json("concatenated_tmdb_movie_data_list.json", concatenated_tmdb_movie_data_list)
+    utils.save_data_as_json("data_files/concatenated_tmdb_movie_data_list.json", concatenated_tmdb_movie_data_list)
 
 
 
@@ -253,7 +253,7 @@ def concatenate_retrieved_tmdb_data():
 def retrieve_cast_and_crew_data_from_tmdb():
     """ Retrieve cast and crew data from TMDb. """
     cast_crew_tmdb_data_list = []
-    new_tmdb_movie_data_list = utils.load_json_data("concatenated_tmdb_movie_data_list.json")
+    new_tmdb_movie_data_list = utils.load_json_data("data_files/concatenated_tmdb_movie_data_list.json")
 
     count = 0
     for movie in new_tmdb_movie_data_list:
@@ -267,4 +267,4 @@ def retrieve_cast_and_crew_data_from_tmdb():
             cast_crew_data = dict(TMDb_ID=tmdb_movie_id, Cast=cast, Crew=crew)
             cast_crew_tmdb_data_list.append(cast_crew_data)
 
-    utils.save_data_as_json("cast_crew_tmdb_movie_data_list.json", cast_crew_tmdb_data_list)
+    utils.save_data_as_json("data_files/cast_crew_tmdb_movie_data_list.json", cast_crew_tmdb_data_list)
