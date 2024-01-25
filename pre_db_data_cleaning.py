@@ -7,8 +7,8 @@ import numpy as np
 
 
 def clean_omdb_movie_data():
-    omdb_movie_data_from_ids = utils.load_json_data("omdb_movie_data_from_valid_29120_ids.json")
-    omdb_movie_data_from_titles = utils.load_json_data("omdb_movie_data_from_valid_35403_titles.json")
+    omdb_movie_data_from_ids = utils.load_json_data("data_files/omdb_movie_data_from_valid_29120_ids.json")
+    omdb_movie_data_from_titles = utils.load_json_data("data_files/omdb_movie_data_from_valid_35403_titles.json")
     omdb_movie_data_list = omdb_movie_data_from_ids + omdb_movie_data_from_titles
 
     for movie in omdb_movie_data_list:
@@ -18,10 +18,9 @@ def clean_omdb_movie_data():
     omdb_df.set_index("imdbID", inplace=True)
 
     omdb_df.drop_duplicates(inplace=True)
-    omdb_df.drop(labels=["Awards", "Website", "Ratings", "Response", "Error"], axis=1, inplace=True)
+    omdb_df.drop(labels=["Website", "Ratings", "Response", "Error"], axis=1, inplace=True)
     omdb_df.replace(to_replace="N/A", value=np.nan, inplace=True)
-    omdb_df.dropna(subset=["Type"], inplace=True)
-    omdb_df.dropna(subset=["Title", "imdbRating", "Genre", "Runtime"], inplace=True)
+    omdb_df.dropna(subset=["Type", "Title", "imdbRating", "Genre", "Runtime"], inplace=True)
 
     omdb_df["Writer"] = omdb_df["Writer"].astype("str").map(lambda x: dcf.clean_writers(x))
     omdb_df["Runtime"] = omdb_df["Runtime"].astype("str").map(lambda x: dcf.clean_runtime(x))
@@ -40,7 +39,7 @@ def clean_omdb_movie_data():
 
 
 def clean_tmdb_movie_data():
-    tmdb_movie_data_list = utils.load_json_data("concatenated_tmdb_movie_data_list.json")
+    tmdb_movie_data_list = utils.load_json_data("data_files/concatenated_tmdb_movie_data_list.json")
 
     # Add relevant key-value pairs to movie_data dictionaries, load into dataframes and store in a list.
     movie_dataframes = []
@@ -61,14 +60,14 @@ def clean_tmdb_movie_data():
 
 
 def clean_cast_crew_data():
-    cast_crew_data_list = utils.load_json_data("cast_crew_tmdb_data_list.json")
+    cast_crew_data_list = utils.load_json_data("data_files/cast_crew_tmdb_movie_data_list.json")
 
     # Flatten cast and crew data into dataframes and append dataframes to lists.
     cast_dfs = []
     crew_dfs = []
     for cc_data in cast_crew_data_list:
         cast_df = pd.json_normalize(cc_data, record_path="Cast", meta=["TMDb_ID"])
-        cast_dfs.append(cast_df[:15])  # only append the first 15 actors (first billed cast)
+        cast_dfs.append(cast_df)
         crew_df = pd.json_normalize(cc_data, record_path="Crew", meta=["TMDb_ID"])
         crew_dfs.append(crew_df)
 
@@ -76,9 +75,9 @@ def clean_cast_crew_data():
     crew_df = pd.concat(crew_dfs)
     cast_df.set_index("TMDb_ID", inplace=True)
     crew_df.set_index("TMDb_ID", inplace=True)
-    cast_df.drop(labels=["adult", "popularity", "profile_path", "cast_id", "character", "credit_id"], axis=1,
+    cast_df.drop(labels=["adult", "popularity", "profile_path", "cast_id", "credit_id"], axis=1,
                  inplace=True)
-    crew_df.drop(labels=["adult", "popularity", "profile_path", "known_for_department", "credit_id"], axis=1,
+    crew_df.drop(labels=["adult", "popularity", "profile_path", "credit_id"], axis=1,
                  inplace=True)
 
     cast_df.to_pickle("cast_df_pre_db.pkl")
@@ -103,7 +102,7 @@ def clean_soundtrack_credits_data():
 def clean_golden_globe_data():
     gg_awards_df = pd.read_csv("golden_globe_awards.csv")
     gg_awards_df["year_award"] = gg_awards_df["year_award"].astype("str").map(lambda x: dcf.convert_award_date(x))
-    gg_awards_df.drop(labels=["year_film", "ceremony", "category", "film", "win"], axis=1, inplace=True)
+    gg_awards_df.drop(labels=["year_film"], axis=1, inplace=True)
     gg_awards_df.to_pickle("gg_awards_df_pre_db.pkl")
 
 
