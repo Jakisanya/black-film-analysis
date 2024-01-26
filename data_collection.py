@@ -1,7 +1,6 @@
 """ This file contains the data collection function that retrieves data from imdb, tmdb and omdb. """
 
 import imdb_scrapers
-import grammy_scraper
 import tmdb_api_functions
 import omdb_api_functions
 
