@@ -8,12 +8,14 @@ import utils
 import pandas as pd
 import data_collection
 import pre_db_data_cleaning
+import psql_database_eng
 import post_db_data_cleaning
 import html_parser
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    html_parser.run_html_parser()
+    # html_parser.run_html_parser()
     # data_collection.collect_data()
     # pre_db_data_cleaning.run_pre_db_data_clean()
-    # psql_database_eng.write_dataframes_to_sql_database()
+    # psql_database_eng.convert_remaining_datasets_to_dfs()
+    psql_database_eng.write_dataframes_to_sql_database()

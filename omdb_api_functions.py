@@ -48,8 +48,7 @@ omdb_movie_data_from_titles_list = []
 
 def retrieve_actor_and_movie_data_from_omdb():
     """Use the stored TMDb data (movie IDs and Titles) to retrieve additional data from OMDb.
-       First query the database by ID, then by movie Title. Save both sets of data."""
-    """
+       First query the database by ID (in batches), then by movie Title. Save both sets of data."""
     tmdb_movie_data_list = pd.DataFrame(utils.load_json_data("original_tmdb_movie_data_list_all_2225.json"))
     tmdb_movie_data_list["IMDb_ID"].fillna("", inplace=True)
 
@@ -63,7 +62,6 @@ def retrieve_actor_and_movie_data_from_omdb():
             omdb_movie_data_from_ids_list.append(omdb_movie_info)
 
     utils.save_data_as_json("omdb_movie_data_from_ids_from_27000_to_29126.json", omdb_movie_data_from_ids_list)
-    """
 
     actor_data_list = utils.load_json_data("data_files/actor_data_list_all_2225.json")
     actor_data = pd.DataFrame(actor_data_list)
