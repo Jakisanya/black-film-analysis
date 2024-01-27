@@ -14,8 +14,9 @@ def extract_data_from_category_section(category_section):
     nominees = [nominee.get_text()[:-1].strip('"').replace('"', '').replace('\\', '') for nominee in nominee_section]
     artist_section = category_section.find_all('div', class_="awards-nominees-link")
     artists = [artist.get_text().replace('\n', '') for artist in artist_section]
-    worker_section = category_section.find_all('p', class_="pt-8 pb-4")
-    workers = [workers.get_text().replace('\n', '') for workers in worker_section]
+    worker_section = category_section.find_all('div', class_="text-left text-14 font-polaris")
+    workers = [workers.find('p', class_="pt-8 pb-4").get_text().replace('\n', '') if workers.find('p', class_="pt-8 pb-4") else list()
+               for workers in worker_section]
     return [category, nominees, artists, workers]
 
 
@@ -27,8 +28,8 @@ def run_html_parser():
     grammy_html_docs = []
     grammy_award_years = [year for year in range(2023, 1957, -1)]
 
-    for file in os.listdir('Grammy Award HTMLs'):
-        grammy_html_docs.append("Grammy Award HTMLs/" + file)
+    for file in os.listdir('data_files/Grammy Award HTMLs'):
+        grammy_html_docs.append("data_files/Grammy Award HTMLs/" + file)
         print(file)
 
     html_doc_no = 0
@@ -62,4 +63,4 @@ def run_html_parser():
 
             annual_grammy_awards_data_list.append(awards_data)
 
-    utils.save_data_as_json("annual_grammy_awards.json", annual_grammy_awards_data_list)
+    utils.save_data_as_json("data_files/annual_grammy_awards.json", annual_grammy_awards_data_list)

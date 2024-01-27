@@ -16,11 +16,13 @@ def clean_omdb_movie_data():
 
     omdb_df = pd.DataFrame(omdb_movie_data_list)
     omdb_df.set_index("imdbID", inplace=True)
-
-    omdb_df.drop_duplicates(inplace=True)
+    print(f"There are {len(omdb_df.index)} movies in the omdb dataset.")
     omdb_df.drop(labels=["Website", "Ratings", "Response", "Error"], axis=1, inplace=True)
+    omdb_df.drop_duplicates(inplace=True)
+    print(f"There are {len(omdb_df.index)} movies in the omdb dataset after a single drop duplicates.")
     omdb_df.replace(to_replace="N/A", value=np.nan, inplace=True)
     omdb_df.dropna(subset=["Type", "Title", "imdbRating", "Genre", "Runtime"], inplace=True)
+    print(f"There are {len(omdb_df.index)} movies in the dataset after a dropna on a subset of the omdb dataset.")
 
     omdb_df["Writer"] = omdb_df["Writer"].astype("str").map(lambda x: dcf.clean_writers(x))
     omdb_df["Runtime"] = omdb_df["Runtime"].astype("str").map(lambda x: dcf.clean_runtime(x))
@@ -53,9 +55,7 @@ def clean_tmdb_movie_data():
 
     # assert len(tmdb_movie_data_list) == len(tmdb_df)
 
-    tmdb_df.iloc[:, 6:] = tmdb_df.iloc[:, 6:].apply(pd.to_datetime)
-    tmdb_df.drop(labels=["Release_Dates", "Keywords"], axis=1, inplace=True)
-
+    tmdb_df.iloc[:, 7:] = tmdb_df.iloc[:, 7:].apply(pd.to_datetime)
     tmdb_df.to_pickle("tmdb_df_pre_db.pkl")
 
 
@@ -85,7 +85,7 @@ def clean_cast_crew_data():
 
 
 def clean_actor_data():
-    actor_data_list = utils.load_json_data("actor_data_list.json")
+    actor_data_list = utils.load_json_data("data_files/actor_data_list_all_2225.json")
     actor_df = pd.DataFrame(actor_data_list)
     actor_df["TMDb_ID"] = actor_df["TMDb_ID"].astype("str")
     actor_df["Birthday"] = pd.to_datetime(actor_df["Birthday"])
@@ -95,35 +95,42 @@ def clean_actor_data():
 def clean_soundtrack_credits_data():
     soundtrack_credits_data_list = utils.load_json_data("soundtrack_credits_data_list.json")
     soundtrack_df = pd.DataFrame(soundtrack_credits_data_list)
-    soundtrack_df.set_index("IMDb_ID", inplace=True)
+    soundtrack_df.set_index("imdb_ID", inplace=True)
     soundtrack_df.to_pickle("soundtrack_credits_df_pre_db.pkl")
 
 
 def clean_golden_globe_data():
-    gg_awards_df = pd.read_csv("golden_globe_awards.csv")
+    gg_awards_df = pd.read_csv("data_files/golden_globe_awards.csv", encoding='utf-8',
+                               encoding_errors='ignore')
     gg_awards_df["year_award"] = gg_awards_df["year_award"].astype("str").map(lambda x: dcf.convert_award_date(x))
-    gg_awards_df.drop(labels=["year_film"], axis=1, inplace=True)
     gg_awards_df.to_pickle("gg_awards_df_pre_db.pkl")
 
 
 def clean_grammy_data():
-    grammy_awards_df = pd.read_csv("the_grammy_awards.csv")
-    grammy_awards_df.drop(labels=["year", "title", "updated_at", "category", "nominee", "img", "winner"], axis=1,
-                          inplace=True)
-    grammy_awards_df["published_at"] = grammy_awards_df["published_at"].map(lambda x: pd.to_datetime(x).date())
-    grammy_awards_df["published_at"] = pd.to_datetime(grammy_awards_df["published_at"])
-    grammy_awards_df["artist"] = grammy_awards_df["artist"].astype("str").map(lambda x: dcf.clean_grammy_artists(x))
-    grammy_awards_df["workers"] = grammy_awards_df["workers"].astype("str").map(lambda x: dcf.clean_grammy_workers(x))
+    grammy_awards_df = pd.DataFrame(utils.load_json_data("data_files/annual_grammy_awards.json"))
+
+    def concat_col_lists(row_value):
+        new_row_value = []
+        for cell_list in row_value:
+            if cell_list == list():
+                new_row_value += [" "]
+            else:
+                new_row_value += cell_list
+        return new_row_value
+
+    for col in grammy_awards_df.columns:
+        grammy_awards_df[col] = grammy_awards_df[col].map(lambda x: concat_col_lists(x))
+
+    grammy_awards_df = grammy_awards_df.explode(['ceremony', 'awards_year', 'category', 'nominee', 'artist', 'workers',
+                                                 'winner'])
     grammy_awards_df.to_pickle("grammy_awards_df_pre_db.pkl")
 
 
 def clean_oscars_data():
-    oscar_awards_df = pd.read_csv("the_oscar_award.csv")
+    oscar_awards_df = pd.read_csv("data_files/the_oscar_award.csv", encoding='utf-8',
+                                  encoding_errors='ignore')
     oscar_awards_df["year_ceremony"] = oscar_awards_df["year_ceremony"].astype("str").map(
         lambda x: dcf.convert_award_date(x))
-    oscar_awards_df["winner"].replace(to_replace=False, value=np.nan, inplace=True)
-    oscar_awards_df.dropna(subset=["winner"], inplace=True)
-    oscar_awards_df.drop(labels=["year_film", "ceremony", "category", "film", "winner"], axis=1, inplace=True)
     oscar_awards_df.to_pickle("oscar_awards_df_pre_db.pkl")
 
 
@@ -135,19 +142,29 @@ def clean_box_office_data():
     box_office_df["Opening_Weekend_Gross"] = box_office_df["Opening_Weekend_Gross"].map(
         lambda x: dcf.clean_box_office(x))
     box_office_df["Worldwide_Gross"] = box_office_df["Worldwide_Gross"].map(lambda x: dcf.clean_box_office(x))
-
+    print(f"There are {len(box_office_df)} entries in the box office dataset.")
     box_office_df.replace(to_replace="", value=np.nan, inplace=True)
     box_office_df.dropna(subset=["Opening_Weekend_Gross", "Worldwide_Gross"], how='all', inplace=True)
+    print(f"There are {len(box_office_df)} entries in the box office dataset after a dropna on 2 columns.")
     box_office_df.to_pickle("box_office_df_pre_db.pkl")
 
 
 def run_pre_db_data_clean():
+    print("Entering clean_omdb_movie_data function.")
     clean_omdb_movie_data()
+    print("Entering clean_tmdb_movie_data function.")
     clean_tmdb_movie_data()
+    print("Entering clean_cast_crew_data function.")
     clean_cast_crew_data()
+    print("Entering clean_actor_data function.")
     clean_actor_data()
+    print("Entering clean_soundtrack_credits_data function.")
     clean_soundtrack_credits_data()
+    print("Entering clean_golden_globe_data function.")
     clean_golden_globe_data()
+    print("Entering clean_grammy_data function.")
     clean_grammy_data()
+    print("Entering clean_oscars_data function.")
     clean_oscars_data()
+    print("Entering clean_box_office_data function.")
     clean_box_office_data()

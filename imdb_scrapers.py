@@ -96,9 +96,15 @@ def run_imdb_box_office_data_summary_crawler():
     # Create the Spider class
     class ScrapeMovieSummary(scrapy.Spider):
         name = 'movie_summary_scraper'
+        custom_settings = {
+            'USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
 
         def start_requests(self):
+            count = 0
             for url in imdb_summary_urls:
+                count += 1
+                print(f'Currently on page {count} of {len(imdb_summary_urls)}.')
                 yield scrapy.Request(url=url, callback=self.parse)
 
         def parse(self, response):
@@ -118,8 +124,6 @@ def run_imdb_box_office_data_summary_crawler():
     process.crawl(ScrapeMovieSummary)
     process.start()
 
-
-def save_imdb_box_office_data_summary_crawler():
     utils.save_data_as_json("box_office_data_list.json", box_office_data_list)
 
 
@@ -192,5 +196,4 @@ def run_soundtrack_credits_crawler():
     process.crawl(ScrapeSoundtrackCredits)
     process.start()
 
-def save_soundtrack_credits_data():
     utils.save_data_as_json("soundtrack_credits_data_list.json", soundtrack_credits_data_list)
