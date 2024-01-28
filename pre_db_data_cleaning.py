@@ -54,8 +54,8 @@ def clean_tmdb_movie_data():
     tmdb_df = pd.concat(movie_dataframes, axis=0, ignore_index=True)
 
     # assert len(tmdb_movie_data_list) == len(tmdb_df)
-
-    tmdb_df.iloc[:, 7:] = tmdb_df.iloc[:, 7:].apply(pd.to_datetime)
+    tmdb_df.drop(["Release_Dates", "Keywords"], axis=1, inplace=True)
+    tmdb_df.iloc[:, 5:] = tmdb_df.iloc[:, 5:].apply(pd.to_datetime)
     tmdb_df.to_pickle("tmdb_df_pre_db.pkl")
 
 
@@ -93,9 +93,100 @@ def clean_actor_data():
 
 
 def clean_soundtrack_credits_data():
-    soundtrack_credits_data_list = utils.load_json_data("soundtrack_credits_data_list.json")
-    soundtrack_df = pd.DataFrame(soundtrack_credits_data_list)
-    soundtrack_df.set_index("imdb_ID", inplace=True)
+    """Explode the soundtrack credits nested json file so that every row corresponds to
+       an artist's track credit in a movie."""
+    soundtrack_credits_data = utils.load_json_data("soundtrack_credits_data_list.json")
+
+    soundtrack_credits_exploded = []
+    for movie_soundtrack_credits in soundtrack_credits_data:
+        if movie_soundtrack_credits["credits"] != list():
+            artist_credit = {"imdb_movie_ID": movie_soundtrack_credits["imdb_ID"]}
+            for credit in movie_soundtrack_credits["credits"]:
+                artist_credit["song_title"] = credit["title"]
+                if "performers" in credit:
+                    if type(credit["performers"]) is list:
+                        for performer in credit["performers"]:
+                            artist_credit["artist_imdb_id"] = performer["imdb_id"]
+                            artist_credit["artist_name"] = performer["name"]
+                            artist_credit["Performed by"] = True
+                            artist_credit["Written by"] = False
+                            artist_credit["Arranged by"] = False
+                            soundtrack_credits_exploded.append(artist_credit.copy())
+                    if type(credit["performers"]) is str:
+                        if "," in credit["performers"]:
+                            performers = credit["performers"].split(",")
+                            for performer in performers:
+                                artist_credit["artist_imdb_id"] = ""
+                                artist_credit["artist_name"] = performer
+                                artist_credit["Performed by"] = True
+                                artist_credit["Written by"] = False
+                                artist_credit["Arranged by"] = False
+                                soundtrack_credits_exploded.append(artist_credit.copy())
+                        if "," not in credit["performers"]:
+                            performer = credit["performers"][13:]
+                            artist_credit["artist_imdb_id"] = ""
+                            artist_credit["artist_name"] = performer
+                            artist_credit["Performed by"] = True
+                            artist_credit["Written by"] = False
+                            artist_credit["Arranged by"] = False
+                            soundtrack_credits_exploded.append(artist_credit.copy())
+                if "writers" in credit:
+                    if type(credit["writers"]) is list:
+                        for writer in credit["writers"]:
+                            artist_credit["artist_imdb_id"] = writer["imdb_id"]
+                            artist_credit["artist_name"] = writer["name"]
+                            artist_credit["Performed by"] = False
+                            artist_credit["Written by"] = True
+                            artist_credit["Arranged by"] = False
+                            soundtrack_credits_exploded.append(artist_credit.copy())
+                    if type(credit["writers"]) is str:
+                        if "," in credit["writers"]:
+                            writers = credit["writers"].split(",")
+                            for writer in writers:
+                                artist_credit["artist_imdb_id"] = ""
+                                artist_credit["artist_name"] = writer
+                                artist_credit["Performed by"] = False
+                                artist_credit["Written by"] = True
+                                artist_credit["Arranged by"] = False
+                                soundtrack_credits_exploded.append(artist_credit.copy())
+                        else:
+                            writer = credit["writers"][12:]
+                            artist_credit["artist_imdb_id"] = ""
+                            artist_credit["artist_name"] = writer
+                            artist_credit["Performed by"] = False
+                            artist_credit["Written by"] = True
+                            artist_credit["Arranged by"] = False
+                            soundtrack_credits_exploded.append(artist_credit.copy())
+                if "arrangers" in credit:
+                    if type(credit["arrangers"]) is list:
+                        for arranger in credit["arrangers"]:
+                            artist_credit["artist_imdb_id"] = arranger["imdb_id"]
+                            artist_credit["artist_name"] = arranger["name"]
+                            artist_credit["Performed by"] = False
+                            artist_credit["Written by"] = False
+                            artist_credit["Arranged by"] = True
+                            soundtrack_credits_exploded.append(artist_credit.copy())
+                    if type(credit["arrangers"]) is str:
+                        if "," in credit["arrangers"]:
+                            arrangers = credit["arrangers"].split(",")
+                            for arranger in arrangers:
+                                artist_credit["artist_imdb_id"] = ""
+                                artist_credit["artist_name"] = arranger
+                                artist_credit["Performed by"] = False
+                                artist_credit["Written by"] = False
+                                artist_credit["Arranged by"] = True
+                                soundtrack_credits_exploded.append(artist_credit.copy())
+                        else:
+                            arranger = credit["arrangers"][13:]
+                            artist_credit["artist_imdb_id"] = ""
+                            artist_credit["artist_name"] = arranger
+                            artist_credit["Performed by"] = False
+                            artist_credit["Written by"] = False
+                            artist_credit["Arranged by"] = True
+                            soundtrack_credits_exploded.append(artist_credit.copy())
+
+    soundtrack_df = pd.DataFrame(soundtrack_credits_exploded)
+    soundtrack_df.set_index("imdb_movie_ID", inplace=True)
     soundtrack_df.to_pickle("soundtrack_credits_df_pre_db.pkl")
 
 
