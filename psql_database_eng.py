@@ -29,6 +29,7 @@ def write_dataframes_to_sql_database():
     """ Write records stored in DataFrames to SQL databases. """
     print("Starting push to database...")
     with engine.begin() as connection:
+        """
         omdb_df = pd.read_pickle("omdb_df_pre_db.pkl")
         print("Creating omdb_df_data database table...")
         omdb_df.to_sql("omdb_df_data", con=connection, schema="general", if_exists="replace")
@@ -56,14 +57,35 @@ def write_dataframes_to_sql_database():
         oscar_awards_df = pd.read_pickle("oscar_awards_df_pre_db.pkl")
         print("Creating oscar_awards_df_data database table...")
         oscar_awards_df.to_sql("oscar_awards_df_data", con=connection, schema="general", if_exists="replace")
+        """
+        actor_data_df = pd.read_pickle("actor_df_pre_db.pkl")
+        print("Creating actor_data_df_data database table...")
+        actor_data_df.to_sql("actor_data_df", con=connection, schema="general", if_exists="replace")
+        actor_na_df = pd.read_pickle("actor_na_df_pre_db.pkl")
+        print("Creating actor_na_df database table...")
+        actor_na_df.to_sql("actor_na_df", con=connection, schema="general", if_exists="replace")
+        name_id_df = pd.read_pickle("name_id_df_pre_db.pkl")
+        print("Creating name_id_df_data database table...")
+        name_id_df.to_sql("name_id_df", con=connection, schema="general", if_exists="replace")
+
 
 def load_sql_tables_as_dataframes():
     """ Load tables stored in SQL database as dataframes. """
-    movie_data_df = pd.read_sql_table("movie_data", con=engine)
+    print("Loading movie_data_df database table...")
+    movie_data_df = pd.read_sql_table("movie_data", con=engine, schema="public")
     movie_data_df.to_pickle("movie_data_df_post_db.pkl")
-    actor_data_df = pd.read_sql_table("actor_data", con=engine)
+    print("Loading actor_data_df database table...")
+    actor_data_df = pd.read_sql_table("actor_data", con=engine, schema="public")
     actor_data_df.to_pickle("actor_data_df_post_db.pkl")
-    movie_awards_df = pd.read_sql_table("movie_awards_data", con=engine)
-    movie_awards_df.to_pickle("movie_awards_df_post_db.pkl")
-    music_awards_df = pd.read_sql_table("music_awards_data", con=engine)
-    music_awards_df.to_pickle("music_awards_df_post_db.pkl")
+    print("Loading grammy_awards_df database table...")
+    grammy_awards_df = pd.read_sql_table("grammy_awards_df_data", con=engine, schema="public")
+    grammy_awards_df.to_pickle("grammy_awards_df_post_db.pkl")
+    print("Loading oscar_awards_df database table...")
+    oscar_awards_df = pd.read_sql_table("oscar_awards_df_data", con=engine, schema="public")
+    oscar_awards_df.to_pickle("oscar_awards_df_post_db.pkl")
+    print("Loading gg_awards_df database table...")
+    gg_awards_df = pd.read_sql_table("gg_awards_df_data", con=engine, schema="public")
+    gg_awards_df.to_pickle("gg_awards_df_post_db.pkl")
+    print("Loading soundtrack_credits_df database table...")
+    soundtrack_credits_df = pd.read_sql_table("soundtrack_df_data", con=engine, schema="public")
+    soundtrack_credits_df.to_pickle("soundtrack_credits_df_post_db.pkl")

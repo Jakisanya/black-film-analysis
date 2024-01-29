@@ -4,9 +4,8 @@ import pandas as pd
 import re
 import numpy as np
 from nltk.corpus import stopwords
-
+# nltk.download('stopwords')
 # omdb_movie_data_list.json
-
 
 def get_rt_score(movie_data):
     """Get the Rotten Tomatoes score for a movie from omdb_movie_data dictionary."""
