@@ -160,3 +160,59 @@ def get_supporting_actors(movie_cast, lead_actors):
     if (movie_cast is not None) and (lead_actors is not None):
         supporting_actors = set(movie_cast).difference(set(lead_actors))
         return list(supporting_actors)
+
+
+def clean_writers(writer_list):
+    """Remove any text in brackets from the Writer column."""
+    writers = []
+    for writer in writer_list:
+        writer = re.sub("(\(.+\))", "", writer).strip()
+        writers.append(writer)
+    return writers
+
+
+def normalise_list_names(names):
+    """Normalise lists of names."""
+    if names is not None:
+        if type(names) is str:
+            names = re.sub("[\{\}\"]", "", names)
+            names = names.split(",")
+            names = [name.upper() for name in names]
+        else:
+            names = [name.upper() for name in names if name is not None]
+    return names
+
+
+def normalise_string_names(names):
+    """Normalise names by making all letters uppercase."""
+    if names is not None:
+        names = names.upper()
+        return names
+
+
+def move_actors(lead_actors, supporting_actors, movie_cast):
+    """Ensure each actor lists are consistent by adding/removing certain actors."""#
+    if lead_actors is not None:
+        for actor in lead_actors:
+            if (actor is not None) and (actor in supporting_actors):
+                supporting_actors.remove(actor)
+            if actor not in movie_cast:
+                movie_cast.append(actor)
+        for actor in supporting_actors:
+            if actor not in movie_cast:
+                movie_cast.append(actor)
+
+
+def split_director_names(director_names):
+    split_names = director_names.split(",")
+    return split_names
+
+
+def remove_redundant_names(artists):
+    """Remove names that are 1-2 characters from the Soundtrack_Artists column values."""
+    new_artists = []
+    if artists is not None:
+        for artist in artists:
+            if len(artist) > 2:
+                new_artists.append(artist.strip())
+    return new_artists
