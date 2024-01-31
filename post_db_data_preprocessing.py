@@ -5,9 +5,9 @@ import pandas as pd
 def add_total_award_columns(movie_data_df):
     """ Add the new total award columns to the dataframe, where the number of awards received by an individual/s before
         their movie release data is summed. """
-    oscar_awards_df = pd.read_pickle("oscar_awards_df_post_db_v2.pkl")
-    grammy_awards_df = pd.read_pickle("grammy_awards_df_post_db_v2.pkl")
-    gg_awards_df = pd.read_pickle("gg_awards_df_post_db_v2.pkl")
+    oscar_awards_df = pd.read_pickle("data_files/oscar_awards_df_post_db_v2.pkl")
+    grammy_awards_df = pd.read_pickle("data_files/grammy_awards_df_post_db_v2.pkl")
+    gg_awards_df = pd.read_pickle("data_files/gg_awards_df_post_db_v2.pkl")
     movie_data_df["Total_Awards_Lead_Actors"] = movie_data_df.apply(
         lambda row: dppf.get_total_movie_awards(row["Lead_Actors"], row["Released"],
                                                 oscar_awards_df, gg_awards_df), axis=1)
@@ -33,7 +33,7 @@ def add_total_award_columns(movie_data_df):
 
 
 def add_black_actor_proportion_columns(movie_data_df):
-    actor_data_df = pd.read_pickle("actor_data_df_post_db_v2.pkl")
+    actor_data_df = pd.read_pickle("data_files/actor_data_df_post_db_v2.pkl")
     movie_data_df["Black_Lead_Proportion"] = movie_data_df.apply(
         lambda row: dppf.calculate_black_actor_proportion(row["Lead_Actors"], actor_data_df), axis=1)
     movie_data_df["Black_Support_Proportion"] = movie_data_df.apply(
@@ -49,7 +49,7 @@ def add_black_actor_proportion_columns(movie_data_df):
 
 
 def run_post_db_data_preprocessing():
-    movie_data_df = pd.read_pickle("movie_data_df_post_db_v4.pkl")
+    movie_data_df = pd.read_pickle("data_files/movie_data_df_post_db_v4.pkl")
     print("Adding total award columns...")
     movie_data_df = add_total_award_columns(movie_data_df)
     print("Adding black actor proportion columns...")

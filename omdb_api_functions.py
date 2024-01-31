@@ -80,17 +80,36 @@ def retrieve_actor_and_movie_data_from_omdb():
 
 additional_titles_list = {"Titles": []}
 
+def validate_retrieved_omdb_json_data():
+    """Remove json dictionaries that have invalid data i.e., where the API request failed."""
+    omdb_movie_data_from_all_29126_ids = utils.load_json_data("data_files/omdb_movie_data_from_all_29126_ids.json")
+    omdb_movie_data_from_all_35433_titles = utils.load_json_data("data_files/omdb_movie_data_from_all_35433_titles.json")
+
+    valid_movie_list_from_ids = []
+    valid_movie_list_from_titles = []
+
+    for movie in omdb_movie_data_from_all_29126_ids:
+        if ("'Response': 'False'" not in str(movie)) and (movie is not None):
+            valid_movie_list_from_ids.append(movie)
+
+    for movie in omdb_movie_data_from_all_35433_titles:
+        if ("'Response': 'False'" not in str(movie)) and (movie is not None):
+            valid_movie_list_from_titles.append(movie)
+
+    utils.save_data_as_json("data_files/valid_omdb_movie_data_from_ids.json", valid_movie_list_from_ids)
+    utils.save_data_as_json("valid_omdb_movie_data_from_titles.json", valid_movie_list_from_titles)
+
 
 def compare_retrieved_omdb_movie_data_and_return_additional_titles():
     """Compare the resulting lists from retrieval (by ID and title) and create a dataset
        of additional movie titles."""
 
     omdb_movie_data_list_1_ids = pd.DataFrame(utils.load_json_data(
-        "data_files/omdb_movie_data_from_valid_29120_ids.json"))
+        "data_files/valid_omdb_movie_data_from_ids.json"))
     title_list_1 = omdb_movie_data_list_1_ids[["Title"]]
 
     omdb_movie_data_list_2_titles = pd.DataFrame(utils.load_json_data(
-        "data_files/omdb_movie_data_from_valid_35403_titles.json"))
+        "data_files/valid_omdb_movie_data_from_titles.json"))
     title_list_2 = omdb_movie_data_list_2_titles[["Title"]]
 
     print(f'There are {len(title_list_1)} movies in the dataset made using imdb ids and '

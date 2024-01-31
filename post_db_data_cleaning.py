@@ -8,7 +8,7 @@ import numpy as np
 
 
 def run_post_db_data_clean():
-    movie_data_df = pd.read_pickle("movie_data_df_post_db.pkl")
+    movie_data_df = pd.read_pickle("data_files/movie_data_df_post_db.pkl")
 
     print(f"The length of the movie_data_df is {len(movie_data_df)}.")
     movie_data_df.drop_duplicates(subset="imdbID", inplace=True)
@@ -76,7 +76,7 @@ def run_post_db_data_clean():
 
 
 def execute_move_actors():
-    movie_data_df = pd.read_pickle("movie_data_df_post_db_v3.pkl")
+    movie_data_df = pd.read_pickle("data_files/movie_data_df_post_db_v3.pkl")
     movie_data_df.apply(lambda row: dcf.move_actors(row["Lead_Actors"], row["Supporting_Actors"], row["Movie_Cast"]),
                         axis=1)
     movie_data_df.to_pickle("movie_data_df_post_db_v4.pkl")
@@ -85,12 +85,12 @@ def execute_move_actors():
 def execute_normalise_columns():
     """Normalise the text and datetime columns by removing redundant characters and making all letters uppercase, and
        making datetimes timezone aware."""
-    movie_data_df = pd.read_pickle("movie_data_df_post_db_v2.pkl")
-    actor_data_df = pd.read_pickle("actor_data_df_post_db.pkl")
-    soundtrack_credits_df = pd.read_pickle("soundtrack_credits_df_post_db.pkl")
-    grammy_awards_df = pd.read_pickle("grammy_awards_df_post_db.pkl")
-    gg_awards_df = pd.read_pickle("gg_awards_df_post_db.pkl")
-    oscar_awards_df = pd.read_pickle("oscar_awards_df_post_db.pkl")
+    movie_data_df = pd.read_pickle("data_files/movie_data_df_post_db_v2.pkl")
+    actor_data_df = pd.read_pickle("data_files/actor_data_df_post_db.pkl")
+    soundtrack_credits_df = pd.read_pickle("data_files/soundtrack_credits_df_post_db.pkl")
+    grammy_awards_df = pd.read_pickle("data_files/grammy_awards_df_post_db.pkl")
+    gg_awards_df = pd.read_pickle("data_files/gg_awards_df_post_db.pkl")
+    oscar_awards_df = pd.read_pickle("data_files/oscar_awards_df_post_db.pkl")
 
     movie_data_df_str_cols_to_normalise = ["Title", "Rated", "Type", "Awards"]
     for col in movie_data_df_str_cols_to_normalise:

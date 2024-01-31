@@ -20,6 +20,7 @@ def convert_remaining_datasets_to_dfs():
     actor_na_df = pd.DataFrame(actor_not_found_list)
     actor_na_df.to_pickle("actor_na_df_pre_db.pkl")
 
+
 conn_string = hidden.secrets["alchemy"]["connection_string"]
 
 # Create an engine.
@@ -29,13 +30,13 @@ def write_dataframes_to_sql_database():
     """ Write records stored in DataFrames to SQL databases. """
     print("Starting push to database...")
     with engine.begin() as connection:
-        """
         omdb_df = pd.read_pickle("omdb_df_pre_db.pkl")
         print("Creating omdb_df_data database table...")
         omdb_df.to_sql("omdb_df_data", con=connection, schema="general", if_exists="replace")
         tmdb_df = pd.read_pickle("tmdb_df_pre_db.pkl")
         print("Creating tmdb_df_data database table...")
         tmdb_df.to_sql("tmdb_df_data", con=connection, schema="general", if_exists="replace")
+        """
         cast_df = pd.read_pickle("cast_df_pre_db.pkl")
         print("Creating cast_df_data database table...")
         cast_df.to_sql("cast_df_data", con=connection, schema="general", if_exists="replace")
@@ -57,7 +58,6 @@ def write_dataframes_to_sql_database():
         oscar_awards_df = pd.read_pickle("oscar_awards_df_pre_db.pkl")
         print("Creating oscar_awards_df_data database table...")
         oscar_awards_df.to_sql("oscar_awards_df_data", con=connection, schema="general", if_exists="replace")
-        """
         actor_data_df = pd.read_pickle("actor_df_pre_db.pkl")
         print("Creating actor_data_df_data database table...")
         actor_data_df.to_sql("actor_data_df", con=connection, schema="general", if_exists="replace")
@@ -67,7 +67,7 @@ def write_dataframes_to_sql_database():
         name_id_df = pd.read_pickle("name_id_df_pre_db.pkl")
         print("Creating name_id_df_data database table...")
         name_id_df.to_sql("name_id_df", con=connection, schema="general", if_exists="replace")
-
+        """
 
 def load_sql_tables_as_dataframes():
     """ Load tables stored in SQL database as dataframes. """
