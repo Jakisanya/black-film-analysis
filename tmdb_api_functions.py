@@ -158,11 +158,11 @@ def retrieve_actor_and_movie_data_from_tmdb():
     """Retrieve actor and movie information from TMDb."""
 
     # Load actor name and imdb id data
-    actor_names_and_ids = utils.load_json_data("actor_ids_not_used.json")
+    actor_names_and_ids = utils.load_json_data("data_files/actor_names_and_ids.json")
 
     # Query TMBb database using the defined functions and store the returned data in lists of dictionaries.
     count = 0
-    for imdb_actor_id in actor_names_and_ids:
+    for imdb_actor_id in actor_names_and_ids["imdb_ids"]:
         count += 1
         print(f'Current place in list: {count} / {len(actor_names_and_ids)}')
 
@@ -190,9 +190,9 @@ def retrieve_actor_and_movie_data_from_tmdb():
         else:
             actor_not_found_in_tmdb_list.append(imdb_actor_id)
 
-    utils.save_data_as_json("original_tmdb_movie_data_list_extra_7.json", tmdb_movie_data_list)
-    utils.save_data_as_json("actor_data_list_extra_7.json", actor_data_list)
-    utils.save_data_as_json("actor_not_found_extra_7.json", actor_not_found_in_tmdb_list)
+    utils.save_data_as_json("original_tmdb_movie_data_list.json", tmdb_movie_data_list)
+    utils.save_data_as_json("actor_data_list.json", actor_data_list)
+    utils.save_data_as_json("actor_not_found.json", actor_not_found_in_tmdb_list)
 
 
 def save_original_retrieved_tmdb_data():
@@ -245,9 +245,6 @@ def concatenate_retrieved_tmdb_data():
           f'\nAdditional dataset size: {len(additional_dataset)}'
           f'\nConcatenated dataset size: {len(concatenated_tmdb_movie_data_list)}')
     utils.save_data_as_json("data_files/concatenated_tmdb_movie_data_list.json", concatenated_tmdb_movie_data_list)
-
-
-
 
 
 def retrieve_cast_and_crew_data_from_tmdb():

@@ -7,8 +7,8 @@ import numpy as np
 
 
 def clean_omdb_movie_data():
-    omdb_movie_data_from_ids = utils.load_json_data("data_files/omdb_movie_data_from_valid_29120_ids.json")
-    omdb_movie_data_from_titles = utils.load_json_data("data_files/omdb_movie_data_from_valid_35403_titles.json")
+    omdb_movie_data_from_ids = utils.load_json_data("data_files/valid_omdb_movie_data_from_ids.json")
+    omdb_movie_data_from_titles = utils.load_json_data("data_files/valid_omdb_movie_data_from_titles.json")
     omdb_movie_data_list = omdb_movie_data_from_ids + omdb_movie_data_from_titles
 
     for movie in omdb_movie_data_list:
@@ -17,7 +17,7 @@ def clean_omdb_movie_data():
     omdb_df = pd.DataFrame(omdb_movie_data_list)
     omdb_df.set_index("imdbID", inplace=True)
     print(f"There are {len(omdb_df.index)} movies in the omdb dataset.")
-    omdb_df.drop(labels=["Website", "Ratings", "Response", "Error"], axis=1, inplace=True)
+    omdb_df.drop(labels=["Website", "Ratings"], axis=1, inplace=True)
     omdb_df.drop_duplicates(inplace=True)
     print(f"There are {len(omdb_df.index)} movies in the omdb dataset after a single drop duplicates.")
     omdb_df.replace(to_replace="N/A", value=np.nan, inplace=True)
@@ -245,6 +245,7 @@ def run_pre_db_data_clean():
     clean_omdb_movie_data()
     print("Entering clean_tmdb_movie_data function.")
     clean_tmdb_movie_data()
+    """
     print("Entering clean_cast_crew_data function.")
     clean_cast_crew_data()
     print("Entering clean_actor_data function.")
@@ -259,3 +260,4 @@ def run_pre_db_data_clean():
     clean_oscars_data()
     print("Entering clean_box_office_data function.")
     clean_box_office_data()
+    """
