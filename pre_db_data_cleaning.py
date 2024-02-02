@@ -24,7 +24,7 @@ def clean_omdb_movie_data():
     omdb_df.dropna(subset=["Type", "Title", "imdbRating", "Genre", "Runtime"], inplace=True)
     print(f"There are {len(omdb_df.index)} movies in the dataset after a dropna on a subset of the omdb dataset.")
 
-    omdb_df["Writer"] = omdb_df["Writer"].astype("str").map(lambda x: dcf.clean_writers(x))
+    omdb_df["Writer"] = omdb_df["Writer"].astype("str").replace("(.\([a-zA-Z\s]+\))", "", regex=True)
     omdb_df["Runtime"] = omdb_df["Runtime"].astype("str").map(lambda x: dcf.clean_runtime(x))
     omdb_df["imdbVotes"] = omdb_df["imdbVotes"].astype("str").map(lambda x: dcf.clean_imdb_votes(x))
     omdb_df["BoxOffice"] = omdb_df["BoxOffice"].astype("str").map(lambda x: dcf.clean_box_office(x))
@@ -33,15 +33,16 @@ def clean_omdb_movie_data():
     ls_cols = ["Genre", "Country", "Writer", "Actors", "Production", "Language"]
     for col in ls_cols:
         omdb_df[col] = omdb_df[col].map(lambda x: dcf.split_long_string(x), na_action='ignore')
+        print(col)
 
     omdb_df["Country"] = omdb_df["Country"].map(lambda x: dcf.clean_country(x), na_action='ignore')
     omdb_df["Released"] = pd.to_datetime(omdb_df["Released"])
 
-    omdb_df.to_pickle("omdb_df_pre_db.pkl")
+    omdb_df.to_pickle("updated_omdb_df_pre_db.pkl")
 
 
 def clean_tmdb_movie_data():
-    tmdb_movie_data_list = utils.load_json_data("data_files/concatenated_tmdb_movie_data_list.json")
+    tmdb_movie_data_list = utils.load_json_data("data_files/updated_additional_tmdb_movie_data_list.json")
 
     # Add relevant key-value pairs to movie_data dictionaries, load into dataframes and store in a list.
     movie_dataframes = []
@@ -56,12 +57,11 @@ def clean_tmdb_movie_data():
     # assert len(tmdb_movie_data_list) == len(tmdb_df)
     tmdb_df.drop(["Release_Dates", "Keywords"], axis=1, inplace=True)
     tmdb_df.iloc[:, 5:] = tmdb_df.iloc[:, 5:].apply(pd.to_datetime)
-    tmdb_df.to_pickle("tmdb_df_pre_db.pkl")
+    tmdb_df.to_pickle("additional_tmdb_df_pre_db.pkl")
 
 
 def clean_cast_crew_data():
-    cast_crew_data_list = utils.load_json_data("data_files/cast_crew_tmdb_movie_data_list.json")
-
+    cast_crew_data_list = utils.load_json_data("additional_cast_crew_tmdb_movie_data_list.json")
     # Flatten cast and crew data into dataframes and append dataframes to lists.
     cast_dfs = []
     crew_dfs = []
@@ -80,8 +80,8 @@ def clean_cast_crew_data():
     crew_df.drop(labels=["adult", "popularity", "profile_path", "credit_id"], axis=1,
                  inplace=True)
 
-    cast_df.to_pickle("cast_df_pre_db.pkl")
-    crew_df.to_pickle("crew_df_pre_db.pkl")
+    cast_df.to_pickle("additional_cast_df_pre_db.pkl")
+    crew_df.to_pickle("additional_crew_df_pre_db.pkl")
 
 
 def clean_actor_data():
@@ -95,7 +95,7 @@ def clean_actor_data():
 def clean_soundtrack_credits_data():
     """Explode the soundtrack credits nested json file so that every row corresponds to
        an artist's track credit in a movie."""
-    soundtrack_credits_data = utils.load_json_data("soundtrack_credits_data_list.json")
+    soundtrack_credits_data = utils.load_json_data("additional_soundtrack_credits_data_list.json")
 
     soundtrack_credits_exploded = []
     for movie_soundtrack_credits in soundtrack_credits_data:
@@ -187,7 +187,7 @@ def clean_soundtrack_credits_data():
 
     soundtrack_df = pd.DataFrame(soundtrack_credits_exploded)
     soundtrack_df.set_index("imdb_movie_ID", inplace=True)
-    soundtrack_df.to_pickle("soundtrack_credits_df_pre_db.pkl")
+    soundtrack_df.to_pickle("additional_soundtrack_credits_df_pre_db.pkl")
 
 
 def clean_golden_globe_data():
@@ -226,7 +226,7 @@ def clean_oscars_data():
 
 
 def clean_box_office_data():
-    box_office_data_list = utils.load_json_data("box_office_data_list.json")
+    box_office_data_list = utils.load_json_data("additional_box_office_data_list.json")
     box_office_df = pd.DataFrame(box_office_data_list)
     box_office_df.set_index("IMDb_ID", inplace=True)
 
@@ -237,7 +237,7 @@ def clean_box_office_data():
     box_office_df.replace(to_replace="", value=np.nan, inplace=True)
     box_office_df.dropna(subset=["Opening_Weekend_Gross", "Worldwide_Gross"], how='all', inplace=True)
     print(f"There are {len(box_office_df)} entries in the box office dataset after a dropna on 2 columns.")
-    box_office_df.to_pickle("box_office_df_pre_db.pkl")
+    box_office_df.to_pickle("additional_box_office_df_pre_db.pkl")
 
 
 def run_pre_db_data_clean():
@@ -245,19 +245,17 @@ def run_pre_db_data_clean():
     clean_omdb_movie_data()
     print("Entering clean_tmdb_movie_data function.")
     clean_tmdb_movie_data()
-    """
     print("Entering clean_cast_crew_data function.")
     clean_cast_crew_data()
     print("Entering clean_actor_data function.")
     clean_actor_data()
-    print("Entering clean_soundtrack_credits_data function.")
-    clean_soundtrack_credits_data()
     print("Entering clean_golden_globe_data function.")
     clean_golden_globe_data()
     print("Entering clean_grammy_data function.")
     clean_grammy_data()
     print("Entering clean_oscars_data function.")
     clean_oscars_data()
+    print("Entering clean_soundtrack_credits_data function.")
+    clean_soundtrack_credits_data()
     print("Entering clean_box_office_data function.")
     clean_box_office_data()
-    """

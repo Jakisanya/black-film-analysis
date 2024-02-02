@@ -8,7 +8,7 @@ import numpy as np
 
 
 def run_post_db_data_clean():
-    movie_data_df = pd.read_pickle("data_files/movie_data_df_post_db.pkl")
+    movie_data_df = pd.read_pickle("updated_movie_data_df_post_db.pkl")
 
     print(f"The length of the movie_data_df is {len(movie_data_df)}.")
     movie_data_df.drop_duplicates(subset="imdbID", inplace=True)
@@ -59,46 +59,42 @@ def run_post_db_data_clean():
         print(f"Currently on movie_crew {movie_crew_count} of {len(movie_data_df)}.")
         movie_data_df.at[index, "movie_crew"] = dcf.clean_crew(value)
 
-    # Swap the movie_cast and movie_crew column names (to correct naming error in joining)
-    movie_data_df.rename(columns={"movie_cast": "movie_crew_temp", "movie_crew": "Movie_Cast"}, inplace=True)
-    movie_data_df.rename(columns={"movie_crew_temp": "Movie_Crew"}, inplace=True)
-
     movie_data_df.rename(columns={"Actors": "Lead_Actors"}, inplace=True)
     print("Creating Supporting_Actors column...")
     movie_data_df["Supporting_Actors"] = movie_data_df.apply(
-        lambda row: dcf.get_supporting_actors(row["Movie_Cast"], row["Lead_Actors"]), axis=1)
+        lambda row: dcf.get_supporting_actors(row["movie_cast"], row["Lead_Actors"]), axis=1)
 
     movie_data_df["soundtrack_artists"] = movie_data_df["soundtrack_artists"].map(
         lambda x: dcf.remove_redundant_names(x))
-    movie_data_df["Writer"] = movie_data_df["Writer"].map(lambda x: dcf.clean_writers(x))
     movie_data_df["Director"] = movie_data_df["Director"].map(lambda x: dcf.split_director_names(x))
-    movie_data_df.to_pickle("movie_data_df_post_db_v2.pkl")
+    movie_data_df.to_pickle("updated_movie_data_df_post_db_v2.pkl")
 
 
 def execute_move_actors():
-    movie_data_df = pd.read_pickle("data_files/movie_data_df_post_db_v3.pkl")
-    movie_data_df.apply(lambda row: dcf.move_actors(row["Lead_Actors"], row["Supporting_Actors"], row["Movie_Cast"]),
+    movie_data_df = pd.read_pickle("updated_movie_data_df_post_db_v3.pkl")
+    movie_data_df.apply(lambda row: dcf.move_actors(row["Lead_Actors"], row["Supporting_Actors"], row["movie_cast"]),
                         axis=1)
-    movie_data_df.to_pickle("movie_data_df_post_db_v4.pkl")
+    movie_data_df.to_pickle("updated_movie_data_df_post_db_v4.pkl")
 
 
 def execute_normalise_columns():
     """Normalise the text and datetime columns by removing redundant characters and making all letters uppercase, and
        making datetimes timezone aware."""
-    movie_data_df = pd.read_pickle("data_files/movie_data_df_post_db_v2.pkl")
-    actor_data_df = pd.read_pickle("data_files/actor_data_df_post_db.pkl")
-    soundtrack_credits_df = pd.read_pickle("data_files/soundtrack_credits_df_post_db.pkl")
-    grammy_awards_df = pd.read_pickle("data_files/grammy_awards_df_post_db.pkl")
-    gg_awards_df = pd.read_pickle("data_files/gg_awards_df_post_db.pkl")
-    oscar_awards_df = pd.read_pickle("data_files/oscar_awards_df_post_db.pkl")
+    movie_data_df = pd.read_pickle("updated_movie_data_df_post_db_v2.pkl")
+    actor_data_df = pd.read_pickle("actor_data_df_post_db.pkl")
+    soundtrack_credits_df = pd.read_pickle("updated_soundtrack_credits_df_post_db.pkl")
+    grammy_awards_df = pd.read_pickle("grammy_awards_df_post_db.pkl")
+    gg_awards_df = pd.read_pickle("gg_awards_df_post_db.pkl")
+    oscar_awards_df = pd.read_pickle("oscar_awards_df_post_db.pkl")
 
     movie_data_df_str_cols_to_normalise = ["Title", "Rated", "Type", "Awards"]
     for col in movie_data_df_str_cols_to_normalise:
         movie_data_df[col] = movie_data_df[col].map(lambda x: dcf.normalise_string_names(x))
 
-    movie_data_df_list_cols_to_normalise = ["Genre", "Director", "Plot", "Writer", "Lead_Actors", "Alternative_Titles",
-                                            "Keyword_List", "Language", "Production", "Movie_Cast", "Movie_Crew",
-                                            "soundtrack_songs", "soundtrack_artists", "Supporting_Actors"]
+    movie_data_df_list_cols_to_normalise = ["Genre", "Director", "Plot", "Writer", "Lead_Actors", "Keyword_List",
+                                            "Language", "Production", "movie_cast", "movie_crew", "soundtrack_songs",
+                                            "soundtrack_artists", "Supporting_Actors"]
+
     for col in movie_data_df_list_cols_to_normalise:
         movie_data_df[col] = movie_data_df[col].map(lambda x: dcf.normalise_list_names(x))
 
@@ -131,9 +127,9 @@ def execute_normalise_columns():
     grammy_awards_df["awards_year"] = pd.to_datetime(grammy_awards_df["awards_year"], utc=True)
     movie_data_df["Released"] = movie_data_df["Released"].apply(lambda d: d.replace(tzinfo=pytz.utc))
 
-    movie_data_df.to_pickle("movie_data_df_post_db_v3.pkl")
+    movie_data_df.to_pickle("updated_movie_data_df_post_db_v3.pkl")
     actor_data_df.to_pickle("actor_data_df_post_db_v2.pkl")
-    soundtrack_credits_df.to_pickle("soundtrack_credits_df_post_db_v2.pkl")
+    soundtrack_credits_df.to_pickle("updated_soundtrack_credits_df_post_db_v2.pkl")
     grammy_awards_df.to_pickle("grammy_awards_df_post_db_v2.pkl")
     gg_awards_df.to_pickle("gg_awards_df_post_db_v2.pkl")
     oscar_awards_df.to_pickle("oscar_awards_df_post_db_v2.pkl")

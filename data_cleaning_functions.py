@@ -50,7 +50,8 @@ def clean_box_office(box_off_val):
 
 def clean_writers(writers):
     """Clean writers string by removing their roles in parentheses after name."""
-    writers = re.sub("(.\([a-zA-Z\s]+\))", "", writers)
+    if writers is not None:
+        writers = re.sub("(.\([a-zA-Z\s]+\))", "", writers[0])
     return writers
 
 

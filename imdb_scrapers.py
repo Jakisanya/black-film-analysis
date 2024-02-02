@@ -83,7 +83,7 @@ def run_imdb_box_office_data_summary_crawler():
     """Scrape the movie's IMDb summary page to retrieve the US Opening Weekend Gross 
        and Worldwide Box Office Gross figures."""
     # Load the two tmdb movie data lists to use.
-    tmdb_movie_data_list = utils.load_json_data("data_files/concatenated_tmdb_movie_data_list.json")
+    tmdb_movie_data_list = utils.load_json_data("data_files/updated_additional_tmdb_movie_data_list.json")
 
     imdb_summary_urls = []
 
@@ -124,7 +124,7 @@ def run_imdb_box_office_data_summary_crawler():
     process.crawl(ScrapeMovieSummary)
     process.start()
 
-    utils.save_data_as_json("box_office_data_list.json", box_office_data_list)
+    utils.save_data_as_json("additional_box_office_data_list.json", box_office_data_list)
 
 
 soundtrack_credits_data_list = []
@@ -132,7 +132,7 @@ soundtrack_credits_data_list = []
 
 def run_soundtrack_credits_crawler():
     print("I get here.")
-    tmdb_movie_data_list = utils.load_json_data("data_files/concatenated_tmdb_movie_data_list.json")
+    tmdb_movie_data_list = utils.load_json_data("data_files/updated_additional_tmdb_movie_data_list.json")
     imdb_soundtrack_urls = []
 
     for movie_data in tmdb_movie_data_list:
@@ -196,4 +196,4 @@ def run_soundtrack_credits_crawler():
     process.crawl(ScrapeSoundtrackCredits)
     process.start()
 
-    utils.save_data_as_json("soundtrack_credits_data_list.json", soundtrack_credits_data_list)
+    utils.save_data_as_json("additional_soundtrack_credits_data_list.json", soundtrack_credits_data_list)
